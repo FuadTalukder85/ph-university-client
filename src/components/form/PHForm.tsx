@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import {
   FieldValues,
   FormProvider,
+  SubmitErrorHandler,
   SubmitHandler,
   useForm,
 } from "react-hook-form";
@@ -33,9 +34,14 @@ const PHForm = ({
 
   const methods = useForm(formConfig);
 
+  const submit: SubmitErrorHandler<FieldValues> = (data) => {
+    onSubmit(data);
+    methods.reset();
+  };
+
   return (
     <FormProvider {...methods}>
-      <Form layout="vertical" onFinish={methods.handleSubmit(onSubmit)}>
+      <Form layout="vertical" onFinish={methods.handleSubmit(submit)}>
         {children}
       </Form>
     </FormProvider>
