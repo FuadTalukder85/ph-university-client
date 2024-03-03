@@ -5,6 +5,8 @@ import { Button, Col, Divider, Row } from "antd";
 import { bloodGroupOptions, genderOptions } from "../../../constants/global";
 import PHSelect from "../../../components/form/PHSelect";
 import PHDatePicker from "../../../components/form/PHDatePicker";
+import { useGetAllsemestersQuery } from "../../../redux/features/admin/academicManagement.api";
+import { useAddStudentMutation } from "../../../redux/features/admin/userManagement.api";
 
 const studentDummyData = {
   password: "student123",
@@ -18,7 +20,7 @@ const studentDummyData = {
     dateOfBirth: "1990-01-01",
     bloogGroup: "A+",
 
-    email: "student2@gmail.com",
+    email: "studentsrg2@gmail.com",
     contactNo: "1235678",
     emergencyContactNo: "987-654-3210",
     presentAddress: "123 Main St, Cityville",
@@ -79,21 +81,38 @@ const studentDeaultValus = {
     address: "789 Pine St, Villageton",
   },
 
-  admissionSemester: "65b0104110b74fcbd7a25d92",
-  academicDepartment: "65b00fb010b74fcbd7a25d8e",
+  // admissionSemester: "65b0104110b74fcbd7a25d92",
+  // academicDepartment: "65b00fb010b74fcbd7a25d8e",
 };
 
 const CreateStudent = () => {
+  const [addStudent, { data, error }] = useAddStudentMutation();
+
+  console.log({ data, error });
+
+  const { data: sData, isLoading: sIsloading } =
+    useGetAllsemestersQuery(undefined);
+  const semesterOptions = sData?.data?.map((item) => ({
+    value: item._id,
+    label: `${item.name} ${item.year}`,
+  }));
+
   const onSubmit: SubmitErrorHandler<FieldValues> = (data) => {
+    const studentData = {
+      password: "student123",
+      student: data,
+    };
     console.log(data);
 
-    // const formdata = new FormData();
+    const formdata = new FormData();
 
-    // formdata.append("data", JSON.stringify(data));
+    formdata.append("data", JSON.stringify(studentData));
+
+    addStudent(formdata);
 
     //! This is for development
     //! Just for checking
-    // console.log(Object.fromEntries(formdata));
+    console.log(Object.fromEntries(formdata));
   };
   return (
     <Row>
@@ -245,6 +264,23 @@ const CreateStudent = () => {
                 name="localGuardian.address"
                 label="Address"
               ></PHInput>
+            </Col>
+          </Row>
+          <Divider>Academic info.</Divider>
+          <Row gutter={8}>
+            <Col span={24} md={{ span: 12 }} lg={{ span: 8 }}>
+              <PHSelect
+                options={semesterOptions}
+                disabled={sIsloading}
+                name="admissionSemester"
+                label="Admission Semester"
+              ></PHSelect>
+            </Col>
+            <Col span={24} md={{ span: 12 }} lg={{ span: 8 }}>
+              {/* <PHSelect
+                name="academicDepartment"
+                label="Academic department"
+              ></PHSelect> */}
             </Col>
           </Row>
           <Button htmlType="submit">Submit</Button>
